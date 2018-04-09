@@ -14,32 +14,29 @@ ms.translationtype: HT
 ms.contentlocale: zh-TW
 ms.lasthandoff: 10/18/2017
 ---
-# <a name="whats-new-in-c-71"></a>在 C# 7.1 最新消息
+# C# 7.1 中的新增功能
 
-C# 7.1 是第一個點版本的 C# 語言。 它會將標示為語言增加的發行日程。 您可以使用的新功能，最好是每個新功能就緒時。 C# 7.1 加入設定以符合指定的版本的語言編譯器的功能。 可讓您分隔在決定要從在決定来升級的語言版本升級工具。
+在 C# 7.1 ，提供以下功能：
 
-將 C# 7.1[語言版本選擇](#language-version-selection)組態項目、 三個新的語言功能和新編譯器行為。
+* [非同步Main方法 ( Async Main method )](#非同步Main方法)
+  - 提供程式進入點允許使用 `await` 運算子。
+* [Default運算值表達式 ( Default literal expressions )](#Default運算值表達式)
+  - 提供變數初始化時簡化初始化目標類型名稱。
+* [Tuple型別推導 ( Inferred tuple element names )](#Tuple型別推導)
+  - 提供 Tuple 方法進行初始化變數時可以由變數名稱自動推導。
 
-在此版本中的新語言功能包括：
+## 深入瞭解新版本
+C# 7.1 自 Visual Studio 2017 15.3 版本起與 .NET Core SDK 2.0 版本起開始支援，預設值 C# 7.1 功能為關閉，
+若要啟用 C# 7.1 功能，您必需確認您的專案編輯語言版本設定值。
 
-* [`async``Main`方法](#async-main)
-  - 應用程式的進入點可以有`async`修飾詞。
-* [`default`常值運算式](#default-literal-expressions)
-  - 目標類型可以推斷時，您可以使用預設值運算式中預設常值運算式。
-* [推斷的 tuple 項目名稱](#inferred-tuple-element-names)
-  - Tuple 元素的名稱來推斷與 tuple 初始化，在許多情況下。
 
-最後，編譯器會有兩個選項`/refout`和`/refonly`該控制項[參考組件產生](#reference-assembly-generation)。
+在 Visual Studio ，設定 C# 7.1 功能啟用的方法為專案總管中欲於設定功能啟用的專案上右鍵選單選擇「專案屬性」
+(**Properties**) ，選擇「建置」頁籤 (**Build**) 後，按下「進階」按紐 (**Advanced**) ，將看見下面對話視窗：
 
-## <a name="language-version-selection"></a>語言版本選取項目
 
-C# 編譯器支援 C# 7.1 開始使用 Visual Studio 2017 版本 15.3 或.NET Core SDK 2.0。 不過，7.1 功能已關閉的預設值。 若要啟用 7.1 功能，您需要變更您的專案的語言版本設定。
+在此對話視窗中選擇「語言版本」 (**Build**) 選項下拉選單值為「 C# 最新主要版本」 (**C# latest minor version (latest)**) 
+或為 「 C# 7.1 」(**C# 7.1**)，按下確定按紐後， Visual Studio 將會為您選取的專案 csproj 設定檔中寫入以下啟用設定：
 
-在 Visual Studio 中，以滑鼠右鍵按一下方案總管 中的專案節點，然後選取**屬性**。 選取**建置**索引標籤並選取**進階** 按鈕。 在下拉式清單中選取**C# 最新次要版本 （最新版）**，或特定版本**C# 7.1**映像下列所示。 `latest`值表示您想要使用目前電腦上的最新的次要版本。 `C# 7.1`表示您想要使用 C# 7.1，即使有較新的次要版本發行。
-
-![設定的語言版本](./media/csharp-7-1/advanced-build-settings.png)
-
-或者，您可以編輯"csproj 「 檔案和新增或修改下列行：
 
 ```xml
 <PropertyGroup>
@@ -47,8 +44,13 @@ C# 編譯器支援 C# 7.1 開始使用 Visual Studio 2017 版本 15.3 或.NET Co
 </PropertyGroup>
 ```
 
+
+選單值「 C# 最新主要版本」與「 C# 7.1 」差異在於選擇 C# 最新主要版本設定時將會使用您當前機器上的最新版本，而選擇
+ 「C# 7.1」 則為明確指定使用 C# 7.1 而非使用當前機器現有更新版本。
+
 > [!NOTE]
-> 如果您使用 Visual Studio IDE 來更新 csproj 檔時，IDE 會建立個別的節點，每個組建組態。 您將一般設定中的值相同所有組建組態，但您需要明確設定每個組建組態，或當您修改此設定時，請選取 「 所有的組態 >。 您會看到下列於 csproj 檔案中：
+> 如果使用 Visual Studio IDE 介面更新 csproj 設定檔， IDE 介面將會為您所選取專案進行個別設定更新，並產
+> 生單一的設定值。然而若有為個別開發環境設定環境變數，或者在當前定選擇所有設定更新時，您將會看到以下設定方式
 
 ```xml
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -60,7 +62,7 @@ C# 編譯器支援 C# 7.1 開始使用 Visual Studio 2017 版本 15.3 或.NET Co
 </PropertyGroup>
 ```
 
-有效的設定，如`LangVersion`項目：
+LangVersion 提供了以下有效數值設定選項：
 
 * `ISO-1`
 * `ISO-2`
@@ -73,14 +75,14 @@ C# 編譯器支援 C# 7.1 開始使用 Visual Studio 2017 版本 15.3 或.NET Co
 * `default`
 * `latest`
 
-特殊字串`default`和`latest`解析成最新的主要和次要語言版本分別安裝在組建電腦上。
+文字字串 `default` 與 `latest` 分別提供使用當前機器所使用的最新版本與次要最新版本。
+您可以使用最新版本 SDK 與其相關工具進行細部個別設定。
 
-此設定以減少在您選擇要在專案中的新語言功能的開發環境中安裝新版本的 SDK 和工具。 您可以在組建電腦上安裝最新的 SDK 和工具。 每個專案可以設定為使用其建立的特定版本的語言。
 
-## <a name="async-main"></a>主要的非同步處理
+## 非同步Main方法
 
-*非同步主要*方法可讓您使用`await`中您`Main`方法。
-先前，您需要撰寫：
+本方法提供 `Main` 方法 (**Main method**) 中使用 `await` 運算子 (**Await operator**) 。在過去您必須這樣寫：
+
 
 ```csharp
 static int Main()
@@ -89,7 +91,7 @@ static int Main()
 }
 ```
 
-您現在可以撰寫：
+現在您可以這樣寫：
 
 ```csharp
 static async Task<int> Main()
@@ -100,7 +102,9 @@ static async Task<int> Main()
 }
 ```
 
-如果您的程式不會傳回結束代碼，您可以宣告`Main`方法會傳回<xref:System.Threading.Tasks.Task>:
+如果您的程式並不需要擲出執行完成狀態 (**An exit code**) ，您可以定義 Main 方法使其擲出
+<xref:System.Threading.Tasks.Task>：
+
 
 ```csharp
 static async Task Main()
@@ -109,30 +113,34 @@ static async Task Main()
 }
 ```
 
-閱讀更多詳細資料中的相關[非同步主要](../programming-guide/main-and-command-args/index.md)程式設計指南中的主題。
 
-## <a name="default-literal-expressions"></a>預設常值運算式
+你可以在程式編輯指南中的 [Main方法](../programming-guide/main-and-command-args/index.md)  (**Main() and command-line arguments**) 
+章節閱讀細節。
 
-預設常值運算式是預設值運算式的增強功能。
-這些運算式初始化的變數預設值。 您先前會寫入：
+## Default運算值表達式
+
+本方法提供[預設值運算式](../programming-guide/statements-expressions-operators/default-value-expressions.md) (**Default value expressions**)的加強。此表達式將會對一個變數初始化一個預設值。在過去您必須這樣寫：
+
 
 ```csharp
 Func<string, bool> whereClause = default(Func<string, bool>);
 ```
 
-您現在可以略過初始化右手邊的類型：
+現在您可以省略右邊的初始化類型：
 
 ```csharp
 Func<string, bool> whereClause = default;
 ```
 
-您可以進一步了解 C# 程式設計手冊 > 主題中的這項增強功能上[預設值運算式](../programming-guide/statements-expressions-operators/default-value-expressions.md)。
+您可以在程式設計指南中的[預設值運算式](../programming-guide/statements-expressions-operators/default-value-expressions.md)章節閱讀細節。
 
-這項增強功能也會變更部分的剖析規則[default 關鍵字](../language-reference/keywords/default.md)。
+本次加強也變更了 [Default 關鍵字](../language-reference/keywords/default.md) (**Default keyword**) 的解析規則。
 
-## <a name="inferred-tuple-element-names"></a>推斷的 tuple 項目名稱
+## Tuple型別推導
 
-這項功能是在 C# 7.0 中所引進的 tuple 功能小增強功能。 許多次當您初始化 tuple，用於指派的右側的變數是您想要的 tuple 項目名稱相同：
+本方法為 C# 7.0 版本 Tuple 方法的改進，在進行 Tuple 方法初始化變數時，需要在初始化變數左方定義一個分類變數名稱
+，然而許多情況下分類變數名稱常與初始化變數名稱相同：
+
 
 ```csharp
 int count = 5;
@@ -140,7 +148,8 @@ string label = "Colors used in the map";
 var pair = (count: count, label: label);
 ```
 
-Tuple 元素的名稱來推斷從用來初始化在 C# 7.1 tuple 的變數：
+改進後的方法在進行變數初始化時分類變數名稱可以由變數名稱推導：
+
 
 ```csharp
 int count = 5;
@@ -148,9 +157,9 @@ string label = "Colors used in the map";
 var pair = (count, label); // element names are "count" and "label"
 ```
 
-您可以進一步了解這項功能[Tuple](../tuples.md)主題。
+您可以在 [Tuples類型](../tuples.md) (**Tuple types**) 章節中學習更多關於此功能的細節。
 
-## <a name="reference-assembly-generation"></a>產生參考組件
+## 組件版本資源
 
-有兩個新的編譯器選項產生*僅參考的組件*: [/refout](../language-reference/compiler-options/refout-compiler-option.md)和[/refonly](../language-reference/compiler-options/refonly-compiler-option.md)。
-連結的主題將說明這些選項和更詳細的參考組件。
+C# 7.1 起提供了兩個新的組件編譯時參考組件編譯參數： [/refout](../language-reference/compiler-options/refout-compiler-option.md)
+ 與 [/refonly](../language-reference/compiler-options/refonly-compiler-option.md)，您可以在連結的章節更詳細的解釋這些選項以及細節。
